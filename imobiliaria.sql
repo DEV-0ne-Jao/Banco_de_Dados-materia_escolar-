@@ -115,13 +115,13 @@ VALUES
 ("Uma moradia aconchegante", "131 Atlantico", 192837456, "casa", "apresentável"),
 ("Uma moradia assustadora", "001", 010101010, "casa", "abanadonada");
 
-INSERT INTO pessoa(nome, endereco, cep, tipo_pessoa, telefone)
+INSERT INTO pessoa(nome, endereco, cep, tipo_pessoa, telefone, cod_cidade)
 VALUES
-("Joao", "167", "99770000", "física", "99922-2397"),
-("Bernardo", "243", "99770000", "física", "99221-1798"),
-("Nathan", "093", "99770000", "física", "99567-1379"),
-("Ricierry", "401", "99770000", "física", "99131-2907"),
-("Lucas Both", "732", "99770000", "jurídica", "99893-7257");
+("Joao", "167", "99770000", "física", "99922-2397", 1),
+("Bernardo", "243", "99770000", "física", "99221-1798", 2),
+("Nathan", "093", "99770000", "física", "99567-1379", 4),
+("Ricierry", "401", "99770000", "física", "99131-2907", 3),
+("Lucas Both", "732", "99770000", "jurídica", "99893-7257", 5);
 
 
 /*
@@ -147,8 +147,6 @@ UPDATE imovel SET situacao="Assombrada" WHERE endereco="001";
 DELETE FROM pessoa WHERE tipo_pessoa = "jurídica";
 DELETE FROM pessoa WHERE nome = "Bernardo";
 
-
-
 INSERT INTO cidade(nome_cidade, uf)
 VALUES
 ("Itatiba", "It"),
@@ -162,13 +160,13 @@ VALUES
 ("minimalista", "274 Atlantico", 192837456, "casa", "Estado bom"),
 ("tecnologica", "234 Rua Coronel Pedro de Souza", 01752351, "apartamento", "ótimo estado");
 
-INSERT INTO pessoa(nome, endereco, cep, tipo_pessoa, telefone)
+INSERT INTO pessoa(nome, endereco, cep, tipo_pessoa, telefone, cod_cidade)
 VALUES
-("André", "201", "99770000", "física", "93922-2367"),
-("Guilherme", "943", "00881100", "jurídica", "91221-1298"),
-("Nicolas", "238", "99770000", "física", "99507-1319"),
-("Matheus", "172", "99770000", "física", "90131-2937"),
-("Sara", "615", "99770000", "jurídica", "99890-7237");
+("André", "201", "99770000", "física", "93922-2367", 7),
+("Guilherme", "943", "00881100", "jurídica", "91221-1298", 3),
+("Nicolas", "238", "99770000", "física", "99507-1319", 4),
+("Matheus", "172", "99770000", "física", "90131-2937", 1),
+("Sara", "615", "99770000", "jurídica", "99890-7237", 3);
 
 ALTER TABLE pessoa
 ADD COLUMN cpf VARCHAR(45) AFTER cep,
@@ -276,6 +274,7 @@ END;
 
 UPDATE cidade SET regiao= CASE
 WHEN nome_cidade="Erechim" THEN "norte"
+when nome_cidade= ("Gramado") or nome_cidade= ("Canela") then "Centro"
 ELSE "não é norte" /*Isso vai deixar todo mundo assim invetiavelmente*/
 END;
 
@@ -302,16 +301,40 @@ valor_aluguel
 DESC;
 
 
+SELECT p.cpf, p.Nome_da_pessoa, c.nome_cidade
+FROM pessoa p
+INNER JOIN cidade c
+ON p.cod_cidade=c.cod_cidade
+WHERE p.cod_cidade BETWEEN 1 AND 5;
 
 
+SELECT c.nome_cidade 'Cidade', COUNT(p.Nome_da_pessoa) 'Total de Pessoas'
+FROM pessoa p
+INNER JOIN cidade c
+ON p.cod_cidade=c.cod_cidade
+GROUP BY c.nome_cidade
+HAVING COUNT(p.Nome_da_pessoa)>1;
 
+/*delete from pessoa;*/
+/*SELECT * FROM pessoa;*/
 
+SELECT c.nome_cidade 'Cidade', COUNT(p.Nome_da_pessoa) 'Total de Pessoas'
+FROM cidade c
+LEFT JOIN pessoa p
+ON p.cod_cidade=c.cod_cidade
+GROUP BY c.nome_cidade;
 
+SELECT c.valor_aluguel "Valor do aluguel", p.Nome_da_pessoa "Nome do inquilino", i.descricao "Descrição do imóvel"
+FROM contrato c
+INNER JOIN pessoa p
+ON c.cod_inquilino = p.cod_pessoa
+INNER JOIN imovel i
+ON c.cod_imovel = i.cod_imovel;
 
-
-
-
-
+SELECT SUM(c.valor_aluguel) "Soma do valor do aluguel", i.descricao "Descrição do imóvel"
+FROM contrato c
+INNER JOIN imovel i
+ON c.cod_imovel = i.cod_imovel
 
 
 
