@@ -331,10 +331,11 @@ ON c.cod_inquilino = p.cod_pessoa
 INNER JOIN imovel i
 ON c.cod_imovel = i.cod_imovel;
 
-SELECT SUM(c.valor_aluguel) "Soma do valor do aluguel", i.descricao "Descrição do imóvel"
+SELECT i.descricao "Descrição do imóvel", SUM(c.valor_aluguel) "Soma do valor do aluguel"
 FROM contrato c
 INNER JOIN imovel i
 ON c.cod_imovel = i.cod_imovel
+GROUP BY i.descricao;
 
 
 
