@@ -1,11 +1,11 @@
 /*Soli Deo Gloria*/
 
-DROP DATABASE imobiliaria;
+DROP DATABASE IF EXISTS imobiliaria;
 
-CREATE DATABASE imobiliaria;
+CREATE DATABASE IF NOT EXISTS imobiliaria;
 USE imobiliaria;
 
-CREATE TABLE cidade (
+CREATE TABLE IF NOT EXISTS cidade (
 nome_cidade VARCHAR(20),
 uf CHAR(2)
 );
@@ -13,7 +13,7 @@ ALTER TABLE cidade
 ADD COLUMN cod_cidade INT NOT NULL AUTO_INCREMENT FIRST,
 ADD PRIMARY KEY (cod_cidade);
 
-CREATE TABLE imovel (
+CREATE TABLE IF NOT EXISTS imovel (
 descricao VARCHAR(45),
 endereco VARCHAR(45),
 cep VARCHAR(45),
@@ -25,7 +25,7 @@ ALTER TABLE imovel
 ADD COLUMN cod_imovel INT NOT NULL AUTO_INCREMENT FIRST,
 ADD PRIMARY KEY (cod_imovel);
 
-CREATE TABLE pessoa (
+CREATE TABLE IF NOT EXISTS pessoa (
 nome VARCHAR(45),
 endereco VARCHAR(45),
 cep VARCHAR(45),
@@ -63,7 +63,7 @@ FOREIGN KEY (cod_cidade)
 REFERENCES cidade(cod_cidade);
 
 
-CREATE TABLE contrato(
+CREATE TABLE IF NOT EXISTS contrato(
 cod_contrato INT NOT NULL /*PRIMARY KEY*/ AUTO_INCREMENT, PRIMARY KEY(cod_contrato),
 cod_imovel INT NOT NULL, CONSTRAINT imovel_cod_imovel FOREIGN KEY (cod_imovel) REFERENCES imovel(cod_imovel),
 cod_inquilino INT NOT NULL, CONSTRAINT pessoa_cod_inquilino FOREIGN KEY (cod_inquilino) REFERENCES pessoa(cod_pessoa),
@@ -106,7 +106,17 @@ VALUES
 ("Erechim", "er"),
 ("Canela", "cn"),
 ("Gramado", "gr"),
-("Campinas", "ca");
+("Nova Petrópoles", "np"),
+("Campinas", "ca"),
+("São Paulo", "sp"),
+("Rio de Janeiro", "rj"),
+("Brasília", "df"),
+("Porto alegre", "pa"),
+("Recife", "rf"),
+("Goiania", "Go"),
+("Aracaju", "ac"),
+("Palmas", "pl"),
+("Florianópolis", "fp");
 
 INSERT INTO imovel(descricao, endereco, cep, tipo, situacao)
 VALUES
@@ -158,28 +168,38 @@ VALUES
 ("moradia colorida", "633 Três vendas", 99770000, "apartamento", "ótimo estado"),
 ("casa moderna", "1734 Atlantico", 12903485, "casa", "Estado bom"),
 ("minimalista", "274 Atlantico", 192837456, "casa", "Estado bom"),
-("tecnologica", "234 Rua Coronel Pedro de Souza", 01752351, "apartamento", "ótimo estado");
-
-INSERT INTO pessoa(nome, endereco, cep, tipo_pessoa, telefone, cod_cidade)
-VALUES
-("André", "201", "99770000", "física", "93922-2367", 7),
-("Guilherme", "943", "00881100", "jurídica", "91221-1298", 3),
-("Nicolas", "238", "99770000", "física", "99507-1319", 4),
-("Matheus", "172", "99770000", "física", "90131-2937", 1),
-("Sara", "615", "99770000", "jurídica", "99890-7237", 3);
+("tecnologica", "234 Rua Coronel Pedro de Souza", 01752351, "apartamento", "ótimo estado"),
+("estilo medieval", "523 Rua 25 de Março", 01663421, "apartamento", "novo"),
+("Uma casa com uma longa história de vida, mas é resistente!", "254 Avenida Paulista", 18537629, "casa", "velho");
 
 ALTER TABLE pessoa
 ADD COLUMN cpf VARCHAR(45) AFTER cep,
-ADD COLUMN gênero VARCHAR(45) NOT NULL AFTER cpf;
+ADD COLUMN genero VARCHAR(45) NOT NULL DEFAULT "Masculino" AFTER cpf;
+
+INSERT INTO pessoa(nome, endereco, cep, cpf, tipo_pessoa, telefone, cod_cidade)
+VALUES
+("André",     "201", "99770000", "152.235.631-23", "física",   "93922-2367", 7),
+("Alvaro",    "224", "99771100", "029.246.345-21", "jurídica", "93234-2367", 4),
+("Arthur",    "502", "99330000", "943.844.341-68", "física",   "37432-6426", 1),
+("Érika",     "534", "94570000", "782.920.212-12", "física",   "48653-6134", 5),
+("Follador",  "621", "16436436", "024.753.642-32", "jurídica", "01834-1235", 6),
+("Bernardo",  "567", "99745023", "105.293.142-29", "física",   "15326-1326", 4),
+("Bruna",     "322", "92643000", "044.235.820-23", "jurídica", "19634-0329", 7),
+("Carla",     "103", "92346530", "101.325.431-24", "física",   "10284-1653", 3),
+("Carol",     "193", "99274860", "938.293.215-09", "física",   "53431-3563", 10),
+("Guilherme", "943", "00881100", "198.723.451-23", "jurídica", "91221-1298", 3),
+("Nicolas",   "238", "99770000", "619.329.821-90", "física",   "99507-1319", 4),
+("Matheus",   "172", "99770000", "325.708.723-02", "física",   "90131-2937", 1),
+("Sara",      "615", "99770000", "987.543.198-12", "jurídica", "99890-7237", 3);
 
 ALTER TABLE imovel ADD COLUMN cor VARCHAR(45) AFTER tipo;
 
 UPDATE pessoa SET cpf = "000.000.000-00" WHERE cod_pessoa BETWEEN 3 AND 7;
 UPDATE pessoa SET cpf = "044.235.820-23" WHERE nome= "Joao Paulo Filipini";
 UPDATE pessoa SET cpf = "341.432.216-90" WHERE nome= "André";
-UPDATE imovel SET cor = "branca" WHERE tipo="casa";
-UPDATE imovel SET cor = "branca" WHERE tipo="apartamento";
-
+UPDATE imovel SET cor = "branca" WHERE tipo="casa" OR tipo="apartamento";
+/*UPDATE imovel SET cor = "branca" WHERE tipo="apartamento";*/
+UPDATE pessoa SET genero = "Feminino" WHERE nome IN("Érika", "Bruna", "Carla", "Carol", "Sara");
 
 
 ALTER TABLE pessoa
@@ -278,8 +298,6 @@ when nome_cidade= ("Gramado") or nome_cidade= ("Canela") then "Centro"
 ELSE "não é norte" /*Isso vai deixar todo mundo assim invetiavelmente*/
 END;
 
-SELECT * FROM cidade;
-DESC cidade;
 
 
 /*Novo conteúdo :) ORDER BY, ASC e DESC*/
@@ -300,12 +318,45 @@ ORDER BY
 valor_aluguel
 DESC;
 
+/*
+5 Selects com Group By (no mínimo 3 funções de agregação)
+5 Selects com Inner Join (3 tabelas) Feito
+3 Selects com Left Join
+2 subconsultas
 
-SELECT p.cpf, p.Nome_da_pessoa, c.nome_cidade
+Algumas devem ter where, or 
+*/
+
+SELECT tipo, COUNT(tipo)
+FROM imovel
+GROUP BY tipo;
+
+SELECT regiao, COUNT(regiao)
+FROM cidade
+GROUP BY regiao
+ORDER BY COUNT(regiao) DESC;
+
+/*Errado por enquanto*/
+SELECT con.cod_imovel, COUNT(con.cod_imovel)
+FROM contrato con
+INNER JOIN pessoa p
+ON con.cod_inquilino = p.cod_pessoa
+GROUP BY con.cod_imovel
+ORDER BY COUNT(con.cod_imovel) DESC;
+
+SELECT SUM(con.valor_aluguel), con.cod_contrato, p.Nome_da_pessoa
+FROM contrato con
+INNER JOIN pessoa p
+ON con.cod_inquilino = p.cod_pessoa
+GROUP BY cod_fiador;
+
+SELECT p.cpf, p.Nome_da_pessoa, c.nome_cidade, c.cod_cidade, con.cod_inquilino "inqulino"
 FROM pessoa p
 INNER JOIN cidade c
-ON p.cod_cidade=c.cod_cidade
-WHERE p.cod_cidade BETWEEN 1 AND 5;
+ON p.cod_cidade = c.cod_cidade
+INNER JOIN contrato con
+ON p.cod_pessoa = con.cod_inquilino
+WHERE p.cod_cidade BETWEEN 1 AND 7;
 
 
 SELECT c.nome_cidade 'Cidade', COUNT(p.Nome_da_pessoa) 'Total de Pessoas'
@@ -316,20 +367,14 @@ GROUP BY c.nome_cidade
 HAVING COUNT(p.Nome_da_pessoa)>1;
 
 /*delete from pessoa;*/
-/*SELECT * FROM pessoa;*/
-
-SELECT c.nome_cidade 'Cidade', COUNT(p.Nome_da_pessoa) 'Total de Pessoas'
-FROM cidade c
-LEFT JOIN pessoa p
-ON p.cod_cidade=c.cod_cidade
-GROUP BY c.nome_cidade;
 
 SELECT c.valor_aluguel "Valor do aluguel", p.Nome_da_pessoa "Nome do inquilino", i.descricao "Descrição do imóvel"
 FROM contrato c
 INNER JOIN pessoa p
 ON c.cod_inquilino = p.cod_pessoa
 INNER JOIN imovel i
-ON c.cod_imovel = i.cod_imovel;
+ON c.cod_imovel = i.cod_imovel
+ORDER BY p.Nome_da_pessoa;
 
 SELECT i.descricao "Descrição do imóvel", SUM(c.valor_aluguel) "Soma do valor do aluguel"
 FROM contrato c
@@ -337,17 +382,30 @@ INNER JOIN imovel i
 ON c.cod_imovel = i.cod_imovel
 GROUP BY i.descricao;
 
+SELECT c.uf, p.Nome_da_pessoa
+FROM pessoa p
+INNER JOIN cidade c
+ON p.cod_cidade = c.cod_cidade
+GROUP BY p.Nome_da_pessoa;
 
+SELECT p.Nome_da_pessoa, c.nome_cidade, COUNT(c.nome_cidade) "Numero de diferentes cidades"
+FROM cidade c
+LEFT JOIN pessoa p
+ON p.cod_cidade = c.cod_cidade
+GROUP BY nome_cidade
+ORDER BY COUNT(c.nome_cidade) DESC;
 
+SELECT c.nome_cidade 'Cidade', COUNT(p.Nome_da_pessoa) 'Total de Pessoas'
+FROM cidade c
+LEFT JOIN pessoa p
+ON p.cod_cidade = c.cod_cidade
+GROUP BY c.nome_cidade
+HAVING COUNT(p.Nome_da_pessoa) <= 2 AND COUNT(p.Nome_da_pessoa) != 1;
 
-
-
-
-
-
-
-
-
+SELECT * FROM cidade;
+SELECT * FROM contrato;
+SELECT * FROM imovel;
+SELECT * FROM pessoa;
 
 
 
